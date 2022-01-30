@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport"    content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author"      content="Sergey Pozhilov (GetTemplate.com)">
+	
+	<title>COVID-19 Rabat-Salé-Kénitra </title>
+    <link rel="icon" type="image/jpg" href="assets/images/covid.jpg" />
+	
+	
+	<!-- Bootstrap -->
+	<link href="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.no-icons.min.css" rel="stylesheet">
+	<!-- Icons -->
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<!-- Fonts -->
+	<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alice|Open+Sans:400,300,700">
+	<!-- Custom styles -->
+	<link rel="stylesheet" href="assets/css/styles.css">
+
+	<!--[if lt IE 9]> <script src="assets/js/html5shiv.js"></script> <![endif]-->
+	<link rel="stylesheet" href="css/leaflet.css" />
+	<script src="assets/js/leaflet.js"></script>
+	<script src="assets/js/jquery-3.6.0.js"></script>
+    <script src="assets/js/leaflet-timeline-slider.js"></script>
+
+</head>
+<body class="home">
+
+<header id="header" style="background-image: url(assets/images/corona.png);">
+	<div id="head" class="parallax" parallax-speed="2">
+		<h1 id="logo" class="text-center">
+			<img class="img-circle" src="assets/images/covid.jpg" alt="">
+			<span class="title" style="color: white;">CAS COVID-19</span>
+			<span class="tagline" style="color: white;">Situation Pandémique dans la région de Rabat-Salé-Kénitra du 05 au 11 Décembre 2021</span>
+			<a href="#main" class="section-title"><span>Aller vers la Carte</span></a>
+		</h1>
+	</div>
+
+</header>
+
+<main id="main">
+
+	<div class="container">
+		
+		<div class="row section topspace">
+			<div class="col-md-12">
+				<p class="lead text-center text-muted" style="color: black;">Nombre de cas quotidiens de Covid-19 dans la région de Rabat-Salé-Kénitra, province par province</p>
+			</div>
+		</div> <!-- / section -->
+		
+		<div class="row section featured topspace">
+			<div class="row" id="main">
+				<style>
+					#map {
+						width: 600px;
+						height: 400px;
+						margin: auto;
+					}
+			        .info {
+					    padding: 6px 8px;
+			            color: white;
+					    font: 14px/16px Arial, Helvetica, sans-serif;
+					    background: black;
+					    background: black;
+					    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+					    border-radius: 5px;
+					}
+					.info h4 {
+					    margin: 0 0 5px;
+					    color: #71797E;
+					}
+			        .legend {
+			           line-height: 18px;
+			           color: #ffffff;
+			        }
+			        .legend i {
+			           width: 18px;
+			           height: 18px;
+			           float: left;
+			           margin-right: 8px;
+			           opacity: 1;
+					}
+					.col-left {
+					  flex: 1;
+					  margin-left: 10px;
+					}
+					.col-right {
+					  flex: 1.25;
+					  margin-right: 10px;
+					}
+			}
+				</style>
+			    <div class="col-right">
+					<div id='map'></div>
+	                <script type="text/javascript" src="assets/js/RSK.js"></script>
+
+
+	                <script type="text/javascript">
+	            
+
+	                   var mymap = L.map('map').setView([33.939006, -6.886224], 7);
+	            
+	                   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+	                       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+	                   }).addTo(mymap);
+
+	                    var geoJson =L.geoJson(RSK)
+	            
+	                    function getColor(attribut) {
+	                        return attribut > 30 ? '#bd0026' :
+	                               attribut > 20 ? '#f03b20' :
+	                               attribut > 10 ? '#fd8d3c' :
+	                               attribut > 5 ? '#fecc5c' :
+	                               attribut > 2 ? '#ffffb2' :
+	                                                    '#FFFFFF';
+	                    }
+	                    function stylisermonFeature(feature) {
+	                        return {
+				                weight: 2,
+				                opacity: 1,
+				                color: 'black',
+				                /*dashArray: '3',*/
+				                fillOpacity: 1,
+				                fillColor: getColor(feature.properties.cas)
+			                };
+		                }
+
+
+	            
+
+	                    function highlightFeature(e) {
+		                var layer = e.target;
+
+		                    layer.setStyle({
+		                    weight: 5,
+		                    color: '#666',
+		                    dashArray: '',
+		                    fillOpacity: 0.7
+		                });
+
+		                    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+		                    layer.bringToFront();
+		                    }
+		                    info.update(layer.feature.properties);
+
+		                }
+
+			            function resetHighlight(e) {
+			    	        geojson.resetStyle(e.target);
+			    	            info.update();
+
+				        }
+			            function zoomToFeature(e) {
+			                map.fitBounds(e.target.getBounds());
+			            }
+
+			            function onEachFeature(feature, layer) {
+			            layer.on({
+			                mouseover: highlightFeature,
+			                mouseout: resetHighlight,
+			                click: zoomToFeature,
+			        
+			            });
+	            
+	        
+			            }
+			            
+			        var info = L.control(); 
+			            
+
+			        info.onAdd = function (mymap) {
+			            this._div = L.DomUtil.create('div', 'info'); 
+			            this.update();
+			            return this._div;
+			        };
+
+
+			        info.update = function (props) {
+			            this._div.innerHTML = '<h4>Rabat-Salé-Kénitra</h4>' +  (props ?
+			                'Province : ' + props.nom + '</b> <br />Nombre de nouveaux cas positifs : ' + props.cas + '</sup>'
+			                : 'Vous êtes hors la région de Rabat Salé Kénitra !');
+			        };
+
+			        info.addTo(mymap);
+
+			        getDataAddMarkers = function( {label, value, map, exclamation} ) {
+			                map.eachLayer(function (layer) {
+			                        if (layer instanceof L.Marker) {
+			                            map.removeLayer(layer);
+			                        }
+			                });
+
+			                filteredData = RSK.features.filter(function (i, n) {
+			                    return i.properties.title===label;
+			                    });
+
+			                /*var markerArray = [];*/
+			                
+			                geojson = L.geoJson(filteredData, {
+			                    style: stylisermonFeature,
+			                    onEachFeature: onEachFeature,
+			                        /*content = `${exclamation} <br> ${feature.properties.content} `
+			                        var popup = L.popup().setContent(content);
+			                        layer.bindPopup(popup);
+			                        markerArray.push(layer);
+			                        layer.on({
+			                            mouseover: highlightFeature,
+			                            mouseout: resetHighlight,
+			        
+			                        })
+			                    }*/
+			                }).addTo(mymap);
+			                
+			                /*var markerGroup = L.featureGroup(markerArray);
+			                map.fitBounds(markerGroup.getBounds()).setZoom(8);*/
+			            };
+
+			            L.control.timelineSlider({
+			                timelineItems: ["05/12/21", "06/12/21", "07/12/21", "08/12/21", "09/12/21", "10/12/21","11/12/21"], 
+			                changeMap: getDataAddMarkers,
+			                extraChangeMapParams: {exclamation: "RSK.feature.properties.nom"} })
+			            .addTo(mymap);
+			            var legend = L.control({ position: "bottomright" });
+
+			        legend.onAdd = function (mymap) {
+			          var div = L.DomUtil.create("div", "info legend"),
+			            grades = [0, 2, 5, 10, 20, 30],
+			            labels = [];
+
+			  
+			          for (var i = 0; i < grades.length; i++) {
+			            div.innerHTML +=
+			            '<i style="background:' +
+			            getColor(grades[i] + 1) +
+			            '"></i> ' +
+			            grades[i] +
+			            (grades[i + 1] ? "&ndash;" + grades[i + 1] + "<br>" : "+");
+			          }
+
+			          return div;
+			        };
+
+			        legend.addTo(mymap);    
+
+
+			        </script>
+			    </div>
+			    <div class="col-left" style="text-align: center;">
+			      <h2>⚙️ Comment ça marche:</h2>
+			      <h3>&emsp;Etape 1: Choisissez une date</h3>
+			      <h3>&emsp;Etape 2: Mettez le curseur sur une province</h3>
+			      <h3>&emsp;Etape 3: Visualisez le nombre de Cas confirmés</h3>
+			      <h3>&emsp;Vous pouvez cliquer + pour zoomer et - pour dézoomer</h3>
+			    </div>
+			</div>
+		</div> <!-- / section -->
+
+</main>
+
+
+<footer id="underfooter">
+	<div class="container">
+		<div class="row">
+			
+			<div class="col-md-6 widget">
+				<div class="widget-body">
+					<p>Projet Web Mapping </p>
+				</div>
+			</div>
+
+			<div class="col-md-6 widget">
+				<div class="widget-body">
+					<p class="text-right">
+						Copyright &copy; Rawia Makhloufi N°37<br> 
+						Email: <a href="https://mail.google.com/mail/u/0/?tab=rm">rawiamakhloufi2000@gmail.com</a> </p>
+						
+				</div>
+			</div>
+
+		</div> <!-- /row of widgets -->
+	</div>
+</footer>
+
+
+
+<!-- JavaScript libs are placed at the end of the document so the pages load faster -->
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="assets/js/template.js"></script>
+</body>
+</html>
+
+
